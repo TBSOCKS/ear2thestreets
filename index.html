@@ -83,6 +83,130 @@
             margin-bottom: 16px;
         }
 
+        /* Mode toggle */
+        .mode-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .mode-btn {
+            padding: 11px;
+            border: 1px solid var(--border);
+            background: var(--tag-bg);
+            color: var(--ink2);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            letter-spacing: 0.04em;
+            text-align: center;
+        }
+
+        .mode-btn:hover { border-color: var(--ink2); color: var(--ink); }
+        .mode-btn.mode-selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+        /* Last.fm import */
+        .lastfm-import {
+            margin-bottom: 24px;
+        }
+
+        .lastfm-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .lastfm-row input {
+            flex: 1;
+            padding: 11px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--ink);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .lastfm-row input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(200, 75, 47, 0.08);
+        }
+
+        .lastfm-row input::placeholder { color: #bbb5aa; }
+
+        .import-btn {
+            background: var(--ink);
+            color: var(--bg);
+            border: none;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            padding: 11px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .import-btn:hover { background: var(--accent); }
+        .import-btn:disabled { opacity: 0.4; cursor: not-allowed; background: var(--ink); }
+
+        .import-btn.loading::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -100%;
+            height: 2px;
+            width: 100%;
+            background: var(--accent2);
+            animation: loadBar 1.5s infinite;
+        }
+
+        .import-hint {
+            font-size: 0.65rem;
+            color: var(--ink2);
+            margin-top: 8px;
+            letter-spacing: 0.03em;
+        }
+
+        /* Imported artists preview */
+        .imported-artists {
+            margin-bottom: 20px;
+        }
+
+        .imported-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            color: var(--ink);
+            margin: 0 4px 6px 0;
+        }
+
+        .imported-tag-remove {
+            background: none;
+            border: none;
+            color: var(--ink2);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.1s;
+        }
+
+        .imported-tag-remove:hover { color: var(--accent); }
+
+        /* Artist inputs */
         .artist-list {
             display: flex;
             flex-direction: column;
@@ -191,10 +315,7 @@
             letter-spacing: 0.04em;
         }
 
-        .add-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
+        .add-btn:hover { border-color: var(--accent); color: var(--accent); }
 
         .primary-btn {
             background: var(--ink);
@@ -427,9 +548,33 @@
     </header>
 
     <div id="step1" class="step">
-        <div class="label">Artists you love</div>
-        <div class="artist-list" id="artist-list"></div>
-        <button class="add-btn" id="add-btn" onclick="addRow()">+ add another artist</button>
+        <div class="label">How do you want to start?</div>
+        <div class="mode-toggle">
+            <button class="mode-btn mode-selected" id="mode-manual" onclick="setMode('manual')">Enter artists manually</button>
+            <button class="mode-btn" id="mode-lastfm" onclick="setMode('lastfm')">Import from Last.fm</button>
+        </div>
+
+        <!-- Last.fm import -->
+        <div id="lastfm-section" class="hidden">
+            <div class="label">Your Last.fm username</div>
+            <div class="lastfm-import">
+                <div class="lastfm-row">
+                    <input type="text" id="lastfm-username" placeholder="e.g. rj" autocomplete="off" />
+                    <button class="import-btn" id="import-btn" onclick="importFromLastfm()">Import top 5 →</button>
+                </div>
+                <div class="import-hint">We'll pull your 5 most scrobbled artists of all time.</div>
+            </div>
+            <div id="imported-artists" class="imported-artists hidden"></div>
+            <div id="error-lastfm" class="error-msg hidden"></div>
+        </div>
+
+        <!-- Manual input -->
+        <div id="manual-section">
+            <div class="label">Artists you love</div>
+            <div class="artist-list" id="artist-list"></div>
+            <button class="add-btn" id="add-btn" onclick="addRow()">+ add another artist</button>
+        </div>
+
         <div id="error1" class="error-msg hidden"></div>
         <button class="primary-btn" id="submit1-btn" onclick="submitArtists()">Build my taste profile →</button>
     </div>
@@ -462,14 +607,95 @@
 </div>
 
 <script>
-    const API_KEY = "86906346c104a44a2d72ba4825e184ad";
+    // =============================================
+    // REPLACE THESE THREE VALUES WITH YOUR OWN KEYS
+    const LASTFM_API_KEY = "your_lastfm_api_key_here";
+    const SPOTIFY_CLIENT_ID = "your_spotify_client_id_here";
+    const SPOTIFY_CLIENT_SECRET = "your_spotify_client_secret_here";
+    // =============================================
+
     const BASE = "https://ws.audioscrobbler.com/2.0/";
 
     let selectedArtists = [];
+    let importedArtists = [];
     let selectedTags = [];
     let selectedPop = "mid";
     let debounceTimers = {};
     let rowCount = 0;
+    let currentMode = "manual";
+
+    // ---- Mode toggle ----
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById("mode-manual").classList.toggle("mode-selected", mode === "manual");
+        document.getElementById("mode-lastfm").classList.toggle("mode-selected", mode === "lastfm");
+        document.getElementById("manual-section").classList.toggle("hidden", mode === "lastfm");
+        document.getElementById("lastfm-section").classList.toggle("hidden", mode === "manual");
+        hideError("error1");
+    }
+
+    // ---- Last.fm import ----
+
+    async function importFromLastfm() {
+        const username = document.getElementById("lastfm-username").value.trim();
+        if (!username) {
+            showError("error-lastfm", "Please enter a Last.fm username.");
+            return;
+        }
+        hideError("error-lastfm");
+
+        const btn = document.getElementById("import-btn");
+        btn.disabled = true;
+        btn.classList.add("loading");
+        btn.textContent = "Importing...";
+
+        try {
+            const r = await fetch(`${BASE}?method=user.getTopArtists&user=${encodeURIComponent(username)}&api_key=${LASTFM_API_KEY}&format=json&limit=5&period=overall`);
+            const d = await r.json();
+
+            if (d.error) {
+                showError("error-lastfm", "Couldn't find that username. Please check and try again.");
+                btn.disabled = false;
+                btn.classList.remove("loading");
+                btn.textContent = "Import top 5 →";
+                return;
+            }
+
+            importedArtists = d.topartists.artist.map(a => a.name);
+            renderImportedArtists();
+
+        } catch {
+            showError("error-lastfm", "Something went wrong. Please try again.");
+        }
+
+        btn.disabled = false;
+        btn.classList.remove("loading");
+        btn.textContent = "Import top 5 →";
+    }
+
+    function renderImportedArtists() {
+        const container = document.getElementById("imported-artists");
+        container.classList.remove("hidden");
+        container.innerHTML = `<div class="label" style="margin-bottom:10px">Imported artists <span style="color:var(--border)">— click to remove</span></div>`;
+        importedArtists.forEach((name, i) => {
+            const tag = document.createElement("span");
+            tag.className = "imported-tag";
+            tag.innerHTML = `${name} <button class="imported-tag-remove" onclick="removeImported(${i})">×</button>`;
+            container.appendChild(tag);
+        });
+    }
+
+    function removeImported(index) {
+        importedArtists.splice(index, 1);
+        if (importedArtists.length === 0) {
+            document.getElementById("imported-artists").classList.add("hidden");
+        } else {
+            renderImportedArtists();
+        }
+    }
+
+    // ---- Artist rows (manual mode) ----
 
     function addRow() {
         if (rowCount >= 10) return;
@@ -515,7 +741,7 @@
     }
 
     function searchArtists(q, id, input) {
-        fetch(`${BASE}?method=artist.search&artist=${encodeURIComponent(q)}&api_key=${API_KEY}&format=json&limit=5`)
+        fetch(`${BASE}?method=artist.search&artist=${encodeURIComponent(q)}&api_key=${LASTFM_API_KEY}&format=json&limit=5`)
             .then(r => r.json())
             .then(data => {
                 const dd = document.getElementById(`dd-${id}`);
@@ -546,13 +772,24 @@
         }, 180);
     }
 
+    // ---- Step 1 submit ----
+
     async function submitArtists() {
-        const inputs = document.querySelectorAll(".artist-row input");
-        selectedArtists = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== "");
-        if (selectedArtists.length === 0) {
-            showError("error1", "Please enter at least one artist.");
-            return;
+        if (currentMode === "lastfm") {
+            if (importedArtists.length === 0) {
+                showError("error1", "Please import your artists from Last.fm first.");
+                return;
+            }
+            selectedArtists = [...importedArtists];
+        } else {
+            const inputs = document.querySelectorAll(".artist-row input");
+            selectedArtists = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== "");
+            if (selectedArtists.length === 0) {
+                showError("error1", "Please enter at least one artist.");
+                return;
+            }
         }
+
         hideError("error1");
         const btn = document.getElementById("submit1-btn");
         btn.disabled = true;
@@ -585,6 +822,8 @@
         document.getElementById("step2").classList.remove("hidden");
     }
 
+    // ---- Tags ----
+
     function toggleTag(el, tag) {
         if (el.classList.contains("tag-selected")) {
             el.classList.remove("tag-selected");
@@ -601,11 +840,15 @@
         });
     }
 
+    // ---- Popularity ----
+
     function selectPop(btn) {
         document.querySelectorAll(".pop-btn").forEach(b => b.classList.remove("pop-selected"));
         btn.classList.add("pop-selected");
         selectedPop = btn.dataset.val;
     }
+
+    // ---- Recommendations ----
 
     async function getRecommendations() {
         const btn = document.getElementById("submit2-btn");
@@ -654,6 +897,8 @@
             filtered.push(name);
         }
 
+        const spotifyToken = await getSpotifyToken();
+
         document.getElementById("loading").classList.add("hidden");
         const list = document.getElementById("results-list");
         list.innerHTML = "";
@@ -663,10 +908,13 @@
         } else {
             for (let i = 0; i < filtered.length; i++) {
                 const name = filtered[i];
-                const { imageUrl, lastfmUrl } = await getArtistInfo(name);
+                const { imageUrl, artistUrl } = await getSpotifyArtistInfo(name, spotifyToken);
+                const finalUrl = artistUrl || `https://www.last.fm/music/${encodeURIComponent(name)}`;
+                const linkHint = artistUrl ? "Open in Spotify ↗" : "View on Last.fm ↗";
+
                 const div = document.createElement("a");
                 div.className = "result-item";
-                div.href = lastfmUrl;
+                div.href = finalUrl;
                 div.target = "_blank";
                 div.rel = "noopener noreferrer";
 
@@ -678,7 +926,7 @@
                     <span class="result-num">${i + 1}</span>
                     <div class="result-info">
                         <span class="result-name">${name}</span>
-                        <div class="result-link-hint">View on Last.fm ↗</div>
+                        <div class="result-link-hint">${linkHint}</div>
                     </div>
                     ${imgHtml}
                 `;
@@ -692,22 +940,44 @@
         btn.textContent = "Find artists →";
     }
 
-    async function getArtistInfo(artistName) {
-        const lastfmUrl = `https://www.last.fm/music/${encodeURIComponent(artistName)}`;
-        let imageUrl = null;
+    // ---- Spotify ----
+
+    async function getSpotifyToken() {
         try {
-            const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(artistName)}`);
-            const wikiData = await wikiRes.json();
-            if (wikiData.thumbnail?.source) {
-                imageUrl = wikiData.thumbnail.source;
-            }
-        } catch { }
-        return { imageUrl, lastfmUrl };
+            const res = await fetch("https://accounts.spotify.com/api/token", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Authorization": "Basic " + btoa(SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET)
+                },
+                body: "grant_type=client_credentials"
+            });
+            const data = await res.json();
+            return data.access_token;
+        } catch { return null; }
     }
+
+    async function getSpotifyArtistInfo(artistName, token) {
+        if (!token) return { imageUrl: null, artistUrl: null };
+        try {
+            const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist&limit=1`, {
+                headers: { "Authorization": "Bearer " + token }
+            });
+            const data = await res.json();
+            const artist = data.artists?.items?.[0];
+            if (!artist) return { imageUrl: null, artistUrl: null };
+            return {
+                imageUrl: artist.images?.[0]?.url || null,
+                artistUrl: artist.external_urls?.spotify || null
+            };
+        } catch { return { imageUrl: null, artistUrl: null }; }
+    }
+
+    // ---- Last.fm helpers ----
 
     async function getTopTags(artist, limit = 5) {
         try {
-            const r = await fetch(`${BASE}?method=artist.getTopTags&artist=${encodeURIComponent(artist)}&api_key=${API_KEY}&format=json&limit=${limit}`);
+            const r = await fetch(`${BASE}?method=artist.getTopTags&artist=${encodeURIComponent(artist)}&api_key=${LASTFM_API_KEY}&format=json&limit=${limit}`);
             const d = await r.json();
             return d.toptags?.tag?.map(t => t.name) || [];
         } catch { return []; }
@@ -715,12 +985,14 @@
 
     async function getArtistsForTag(tag, skip = 0, limit = 50) {
         try {
-            const r = await fetch(`${BASE}?method=tag.getTopArtists&tag=${encodeURIComponent(tag)}&api_key=${API_KEY}&format=json&limit=${limit + skip}`);
+            const r = await fetch(`${BASE}?method=tag.getTopArtists&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_API_KEY}&format=json&limit=${limit + skip}`);
             const d = await r.json();
             const all = d.topartists?.artist?.map(a => a.name) || [];
             return all.slice(skip);
         } catch { return []; }
     }
+
+    // ---- Utils ----
 
     function showError(id, msg) {
         const el = document.getElementById(id);
@@ -734,14 +1006,19 @@
 
     function startOver() {
         selectedArtists = [];
+        importedArtists = [];
         selectedTags = [];
         selectedPop = "mid";
         rowCount = 0;
+        currentMode = "manual";
         document.getElementById("artist-list").innerHTML = "";
         document.getElementById("add-btn").classList.remove("hidden");
+        document.getElementById("imported-artists").classList.add("hidden");
+        document.getElementById("lastfm-username").value = "";
         document.getElementById("step3").classList.add("hidden");
         document.getElementById("step2").classList.add("hidden");
         document.getElementById("step1").classList.remove("hidden");
+        setMode("manual");
         addRow();
     }
 
