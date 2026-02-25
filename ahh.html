@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ear to the Streets</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👂</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f0e8;
+            --bg2: #ede8df;
+            --ink: #1a1612;
+            --ink2: #6b6560;
+            --accent: #c84b2f;
+            --accent2: #e8843a;
+            --border: #d4cec4;
+            --card: #ffffff;
+            --tag-bg: #ede8df;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Mono', monospace;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.4;
+        }
+
+        .page {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 80px 24px 120px;
+        }
+
+        .header { margin-bottom: 64px; }
+
+        .wordmark {
+            font-family: 'Instrument Serif', serif;
+            font-size: 3.2rem;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+            margin-bottom: 10px;
+        }
+
+        .wordmark em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .tagline {
+            font-size: 0.72rem;
+            color: var(--ink2);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 32px 0;
+        }
+
+        .label {
+            font-size: 0.65rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink2);
+            margin-bottom: 16px;
+        }
+
+        .artist-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .artist-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.2s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .artist-num {
+            font-size: 0.65rem;
+            color: var(--ink2);
+            width: 16px;
+            flex-shrink: 0;
+            letter-spacing: 0.05em;
+        }
+
+        .input-wrap {
+            position: relative;
+            flex: 1;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            padding: 11px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--ink);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(200, 75, 47, 0.08);
+        }
+
+        .input-wrap input::placeholder { color: #bbb5aa; }
+
+        .dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            z-index: 50;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .dropdown.visible { display: block; }
+
+        .dropdown-item {
+            padding: 9px 14px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            color: var(--ink);
+            transition: background 0.1s;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .dropdown-item:hover { background: var(--bg2); }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--border);
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 4px;
+            transition: color 0.15s;
+            flex-shrink: 0;
+        }
+
+        .remove-btn:hover { color: var(--accent); }
+
+        .add-btn {
+            background: none;
+            border: 1px dashed var(--border);
+            color: var(--ink2);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            padding: 9px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 28px;
+            transition: all 0.15s;
+            letter-spacing: 0.04em;
+        }
+
+        .add-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .primary-btn {
+            background: var(--ink);
+            color: var(--bg);
+            border: none;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 14px 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .primary-btn:hover { background: var(--accent); }
+        .primary-btn:disabled { opacity: 0.4; cursor: not-allowed; background: var(--ink); }
+
+        .primary-btn.loading::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -100%;
+            height: 2px;
+            width: 100%;
+            background: var(--accent2);
+            animation: loadBar 1.5s infinite;
+        }
+
+        @keyframes loadBar { to { left: 100%; } }
+
+        .tag-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .tag {
+            padding: 6px 13px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--tag-bg);
+            color: var(--ink2);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            letter-spacing: 0.03em;
+        }
+
+        .tag:hover:not(.tag-disabled) { border-color: var(--accent); color: var(--accent); }
+        .tag.tag-selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+        .tag.tag-disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .pop-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .pop-btn {
+            padding: 10px;
+            border: 1px solid var(--border);
+            background: var(--tag-bg);
+            color: var(--ink2);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            letter-spacing: 0.04em;
+            text-align: center;
+        }
+
+        .pop-btn:hover { border-color: var(--ink2); color: var(--ink); }
+        .pop-btn.pop-selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            animation: fadeUp 0.3s ease both;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .result-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 12px rgba(200, 75, 47, 0.08);
+        }
+
+        .result-item:nth-child(1) { animation-delay: 0.05s; }
+        .result-item:nth-child(2) { animation-delay: 0.1s; }
+        .result-item:nth-child(3) { animation-delay: 0.15s; }
+        .result-item:nth-child(4) { animation-delay: 0.2s; }
+        .result-item:nth-child(5) { animation-delay: 0.25s; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-num {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: 1.6rem;
+            color: var(--border);
+            width: 28px;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .result-info { flex: 1; }
+
+        .result-name {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.25rem;
+            color: var(--ink);
+            letter-spacing: -0.01em;
+            display: block;
+        }
+
+        .result-link-hint {
+            font-size: 0.62rem;
+            color: var(--ink2);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .result-img {
+            width: 52px;
+            height: 52px;
+            border-radius: 4px;
+            object-fit: cover;
+            background: var(--bg2);
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+
+        .result-img-placeholder {
+            width: 52px;
+            height: 52px;
+            border-radius: 4px;
+            background: var(--bg2);
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .ghost-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--ink2);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.15s;
+        }
+
+        .ghost-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+        .loading-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--ink2);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.2s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        .error-msg {
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-top: 10px;
+            letter-spacing: 0.04em;
+        }
+
+        .hidden { display: none !important; }
+        .step { animation: fadeIn 0.25s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <header class="header">
+        <div class="wordmark">Ear to the <em>Streets</em></div>
+        <div class="tagline">Artist discovery, powered by listener taste</div>
+    </header>
+
+    <div id="step1" class="step">
+        <div class="label">Artists you love</div>
+        <div class="artist-list" id="artist-list"></div>
+        <button class="add-btn" id="add-btn" onclick="addRow()">+ add another artist</button>
+        <div id="error1" class="error-msg hidden"></div>
+        <button class="primary-btn" id="submit1-btn" onclick="submitArtists()">Build my taste profile →</button>
+    </div>
+
+    <div id="step2" class="step hidden">
+        <div class="label">Refine by genre <span style="color:var(--border)">— pick up to 3</span></div>
+        <div class="tag-grid" id="tag-grid"></div>
+        <div class="divider"></div>
+        <div class="label">Popularity</div>
+        <div class="pop-row">
+            <button class="pop-btn" data-val="mainstream" onclick="selectPop(this)">Mainstream</button>
+            <button class="pop-btn pop-selected" data-val="mid" onclick="selectPop(this)">Mid</button>
+            <button class="pop-btn" data-val="underground" onclick="selectPop(this)">Underground</button>
+        </div>
+        <button class="primary-btn" id="submit2-btn" onclick="getRecommendations()">Find artists →</button>
+    </div>
+
+    <div id="loading" class="hidden">
+        <div class="loading-state">
+            <div class="loading-dots">Finding artists</div>
+        </div>
+    </div>
+
+    <div id="step3" class="step hidden">
+        <div class="label">Recommended for you</div>
+        <div class="results-list" id="results-list"></div>
+        <button class="ghost-btn" onclick="startOver()">← Start over</button>
+    </div>
+
+</div>
+
+<script>
+    const API_KEY = "86906346c104a44a2d72ba4825e184ad";
+    const BASE = "https://ws.audioscrobbler.com/2.0/";
+
+    let selectedArtists = [];
+    let selectedTags = [];
+    let selectedPop = "mid";
+    let debounceTimers = {};
+    let rowCount = 0;
+
+    function addRow() {
+        if (rowCount >= 10) return;
+        rowCount++;
+        const id = rowCount;
+        const list = document.getElementById("artist-list");
+        const row = document.createElement("div");
+        row.className = "artist-row";
+        row.id = `row-${id}`;
+        row.innerHTML = `
+            <span class="artist-num">${id}.</span>
+            <div class="input-wrap">
+                <input type="text" placeholder="Search artist name..." autocomplete="off"
+                    oninput="handleInput(this, ${id})"
+                    onblur="hideDropdown(${id})"
+                    data-selected=""
+                />
+                <div class="dropdown" id="dd-${id}"></div>
+            </div>
+            <button class="remove-btn" onclick="removeRow(${id})">×</button>
+        `;
+        list.appendChild(row);
+        if (rowCount >= 10) document.getElementById("add-btn").classList.add("hidden");
+        row.querySelector("input").focus();
+    }
+
+    function removeRow(id) {
+        const row = document.getElementById(`row-${id}`);
+        if (row) row.remove();
+        document.getElementById("add-btn").classList.remove("hidden");
+        document.querySelectorAll(".artist-row").forEach((r, i) => {
+            r.querySelector(".artist-num").textContent = `${i+1}.`;
+        });
+        rowCount = document.querySelectorAll(".artist-row").length;
+    }
+
+    function handleInput(input, id) {
+        const q = input.value.trim();
+        input.dataset.selected = "";
+        clearTimeout(debounceTimers[id]);
+        if (q.length < 2) { hideDropdown(id); return; }
+        debounceTimers[id] = setTimeout(() => searchArtists(q, id, input), 260);
+    }
+
+    function searchArtists(q, id, input) {
+        fetch(`${BASE}?method=artist.search&artist=${encodeURIComponent(q)}&api_key=${API_KEY}&format=json&limit=5`)
+            .then(r => r.json())
+            .then(data => {
+                const dd = document.getElementById(`dd-${id}`);
+                try {
+                    const artists = data.results.artistmatches.artist;
+                    dd.innerHTML = "";
+                    if (!artists.length) { dd.classList.remove("visible"); return; }
+                    artists.forEach(a => {
+                        const div = document.createElement("div");
+                        div.className = "dropdown-item";
+                        div.textContent = a.name;
+                        div.onmousedown = () => {
+                            input.value = a.name;
+                            input.dataset.selected = a.name;
+                            dd.classList.remove("visible");
+                        };
+                        dd.appendChild(div);
+                    });
+                    dd.classList.add("visible");
+                } catch { dd.classList.remove("visible"); }
+            });
+    }
+
+    function hideDropdown(id) {
+        setTimeout(() => {
+            const dd = document.getElementById(`dd-${id}`);
+            if (dd) dd.classList.remove("visible");
+        }, 180);
+    }
+
+    async function submitArtists() {
+        const inputs = document.querySelectorAll(".artist-row input");
+        selectedArtists = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== "");
+        if (selectedArtists.length === 0) {
+            showError("error1", "Please enter at least one artist.");
+            return;
+        }
+        hideError("error1");
+        const btn = document.getElementById("submit1-btn");
+        btn.disabled = true;
+        btn.classList.add("loading");
+        btn.textContent = "Fetching taste profile...";
+
+        const tagMap = {};
+        for (const artist of selectedArtists) {
+            const tags = await getTopTags(artist);
+            tags.forEach(t => { tagMap[t] = (tagMap[t] || 0) + 1; });
+        }
+
+        const allTags = Object.keys(tagMap);
+        btn.disabled = false;
+        btn.classList.remove("loading");
+        btn.textContent = "Build my taste profile →";
+
+        const grid = document.getElementById("tag-grid");
+        grid.innerHTML = "";
+        selectedTags = [];
+        allTags.forEach(tag => {
+            const el = document.createElement("button");
+            el.className = "tag";
+            el.textContent = tag;
+            el.onclick = () => toggleTag(el, tag);
+            grid.appendChild(el);
+        });
+
+        document.getElementById("step1").classList.add("hidden");
+        document.getElementById("step2").classList.remove("hidden");
+    }
+
+    function toggleTag(el, tag) {
+        if (el.classList.contains("tag-selected")) {
+            el.classList.remove("tag-selected");
+            selectedTags = selectedTags.filter(t => t !== tag);
+        } else {
+            if (selectedTags.length >= 3) return;
+            el.classList.add("tag-selected");
+            selectedTags.push(tag);
+        }
+        document.querySelectorAll(".tag").forEach(t => {
+            if (!t.classList.contains("tag-selected")) {
+                t.classList.toggle("tag-disabled", selectedTags.length >= 3);
+            }
+        });
+    }
+
+    function selectPop(btn) {
+        document.querySelectorAll(".pop-btn").forEach(b => b.classList.remove("pop-selected"));
+        btn.classList.add("pop-selected");
+        selectedPop = btn.dataset.val;
+    }
+
+    async function getRecommendations() {
+        const btn = document.getElementById("submit2-btn");
+        btn.disabled = true;
+        btn.classList.add("loading");
+        btn.textContent = "Finding artists...";
+        document.getElementById("step2").classList.add("hidden");
+        document.getElementById("loading").classList.remove("hidden");
+
+        const skipMap = { mainstream: 0, mid: 50, underground: 100 };
+        const skip = skipMap[selectedPop] || 50;
+
+        const tagCounter = {};
+        for (const artist of selectedArtists) {
+            const tags = await getTopTags(artist);
+            tags.forEach(t => { tagCounter[t] = (tagCounter[t] || 0) + 1; });
+        }
+
+        let sharedTags = Object.entries(tagCounter).filter(([, c]) => c >= 2).map(([t]) => t);
+        if (sharedTags.length === 0) {
+            sharedTags = Object.entries(tagCounter).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t]) => t);
+        }
+
+        const artistCounter = {};
+        const seedLower = selectedArtists.map(a => a.toLowerCase());
+        for (const tag of sharedTags) {
+            const artists = await getArtistsForTag(tag, skip);
+            artists.forEach(name => {
+                if (!seedLower.includes(name.toLowerCase())) {
+                    artistCounter[name] = (artistCounter[name] || 0) + 1;
+                }
+            });
+        }
+
+        let candidates = Object.entries(artistCounter).sort((a, b) => b[1] - a[1]).map(([name]) => name);
+        const filterTagsLower = selectedTags.map(t => t.toLowerCase());
+        let filtered = [];
+
+        for (const name of candidates) {
+            if (filtered.length >= 5) break;
+            if (filterTagsLower.length > 0) {
+                const tags = await getTopTags(name);
+                const tagsLower = tags.map(t => t.toLowerCase());
+                if (!filterTagsLower.some(t => tagsLower.includes(t))) continue;
+            }
+            filtered.push(name);
+        }
+
+        document.getElementById("loading").classList.add("hidden");
+        const list = document.getElementById("results-list");
+        list.innerHTML = "";
+
+        if (filtered.length === 0) {
+            list.innerHTML = `<p style="color:var(--ink2); font-size:0.8rem">No results found. Try adjusting your filters or popularity setting.</p>`;
+        } else {
+            for (let i = 0; i < filtered.length; i++) {
+                const name = filtered[i];
+                const { imageUrl, lastfmUrl } = await getArtistInfo(name);
+                const div = document.createElement("a");
+                div.className = "result-item";
+                div.href = lastfmUrl;
+                div.target = "_blank";
+                div.rel = "noopener noreferrer";
+
+                const imgHtml = imageUrl
+                    ? `<img class="result-img" src="${imageUrl}" alt="${name}" onerror="this.outerHTML='<div class=\\'result-img-placeholder\\'>🎵</div>'">`
+                    : `<div class="result-img-placeholder">🎵</div>`;
+
+                div.innerHTML = `
+                    <span class="result-num">${i + 1}</span>
+                    <div class="result-info">
+                        <span class="result-name">${name}</span>
+                        <div class="result-link-hint">View on Last.fm ↗</div>
+                    </div>
+                    ${imgHtml}
+                `;
+                list.appendChild(div);
+            }
+        }
+
+        document.getElementById("step3").classList.remove("hidden");
+        btn.disabled = false;
+        btn.classList.remove("loading");
+        btn.textContent = "Find artists →";
+    }
+
+    async function getArtistInfo(artistName) {
+        const lastfmUrl = `https://www.last.fm/music/${encodeURIComponent(artistName)}`;
+        let imageUrl = null;
+        try {
+            const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(artistName)}`);
+            const wikiData = await wikiRes.json();
+            if (wikiData.thumbnail?.source) {
+                imageUrl = wikiData.thumbnail.source;
+            }
+        } catch { }
+        return { imageUrl, lastfmUrl };
+    }
+
+    async function getTopTags(artist, limit = 5) {
+        try {
+            const r = await fetch(`${BASE}?method=artist.getTopTags&artist=${encodeURIComponent(artist)}&api_key=${API_KEY}&format=json&limit=${limit}`);
+            const d = await r.json();
+            return d.toptags?.tag?.map(t => t.name) || [];
+        } catch { return []; }
+    }
+
+    async function getArtistsForTag(tag, skip = 0, limit = 50) {
+        try {
+            const r = await fetch(`${BASE}?method=tag.getTopArtists&tag=${encodeURIComponent(tag)}&api_key=${API_KEY}&format=json&limit=${limit + skip}`);
+            const d = await r.json();
+            const all = d.topartists?.artist?.map(a => a.name) || [];
+            return all.slice(skip);
+        } catch { return []; }
+    }
+
+    function showError(id, msg) {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.classList.remove("hidden");
+    }
+
+    function hideError(id) {
+        document.getElementById(id).classList.add("hidden");
+    }
+
+    function startOver() {
+        selectedArtists = [];
+        selectedTags = [];
+        selectedPop = "mid";
+        rowCount = 0;
+        document.getElementById("artist-list").innerHTML = "";
+        document.getElementById("add-btn").classList.remove("hidden");
+        document.getElementById("step3").classList.add("hidden");
+        document.getElementById("step2").classList.add("hidden");
+        document.getElementById("step1").classList.remove("hidden");
+        addRow();
+    }
+
+    addRow();
+</script>
+</body>
+</html>
