@@ -962,18 +962,20 @@
 
         for (const tag of sharedTags) {
             const artists = await getArtistsForTagWithListeners(tag);
-            artists.forEach(({ name, listeners }) => {
+            const total = artists.length;
+            artists.forEach(({ name, rank }) => {
                 if (!seedLower.includes(name.toLowerCase())) {
                     if (!artistMap[name]) {
-                        artistMap[name] = { count: 0, listeners, matchedTags: [] };
+                        artistMap[name] = { count: 0, rank, total, matchedTags: [] };
                     }
                     artistMap[name].count++;
                     if (!artistMap[name].matchedTags.includes(tag)) {
                         artistMap[name].matchedTags.push(tag);
                     }
-                    // Keep highest listener count seen
-                    if (listeners > artistMap[name].listeners) {
-                        artistMap[name].listeners = listeners;
+                    // Keep best (lowest) rank seen
+                    if (rank < artistMap[name].rank) {
+                        artistMap[name].rank = rank;
+                        artistMap[name].total = total;
                     }
                 }
             });
@@ -984,16 +986,12 @@
             .sort((a, b) => b[1].count - a[1].count)
             .map(([name, data]) => ({ name, ...data }));
 
-        // Calculate percentile thresholds from this pool
-        const listenerCounts = candidates.map(c => c.listeners).sort((a, b) => a - b);
-        const p33 = listenerCounts[Math.floor(listenerCounts.length * 0.33)] || 0;
-        const p66 = listenerCounts[Math.floor(listenerCounts.length * 0.66)] || 0;
-
-        // Filter by selected tier
+        // Filter by tier using rank position
         candidates = candidates.filter(c => {
-            if (selectedTier === "well-known") return c.listeners >= p66;
-            if (selectedTier === "rising") return c.listeners >= p33 && c.listeners < p66;
-            if (selectedTier === "under-the-radar") return c.listeners < p33;
+            const pct = c.rank / (c.total || 1000);
+            if (selectedTier === "well-known") return pct <= 0.33;
+            if (selectedTier === "rising") return pct > 0.33 && pct <= 0.66;
+            if (selectedTier === "under-the-radar") return pct > 0.66;
             return true;
         });
 
@@ -1036,11 +1034,15 @@
                 const listenerStr = candidate.listeners > 0
                     ? `${(candidate.listeners / 1000).toFixed(0)}k Last.fm listeners`
                     : "";
-                const tooltipText = tagList
-                    ? `Suggested because they share tags with your artists: ${tagList}${listenerStr ? ` · ${listenerStr}` : ""}`
-                    : listenerStr
-                        ? `Suggested based on your taste profile · ${listenerStr}`
-                        : "Suggested based on your taste profile";
+                const listenerStr = candidate.rank
+    ? `Rank #${candidate.rank} of ${candidate.total} in this genre`
+    : "";
+
+const tooltipText = tagList
+    ? `Suggested because they share tags with your artists: ${tagList}${listenerStr ? ` · ${listenerStr}` : ""}`
+    : listenerStr
+        ? `Suggested based on your taste profile · ${listenerStr}`
+        : "Suggested based on your taste profile";
 
                 const div = document.createElement("a");
                 div.className = "result-item";
@@ -1115,15 +1117,17 @@
     }
 
     async function getArtistsForTagWithListeners(tag, limit = 1000) {
-        try {
-            const r = await fetch(`${BASE}?method=tag.getTopArtists&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_API_KEY}&format=json&limit=${limit}`);
-            const d = await r.json();
-            return (d.topartists?.artist || []).map(a => ({
-                name: a.name,
-                listeners: parseInt(a.listeners || "0", 10)
-            }));
-        } catch { return []; }
-    }
+    try {
+        const r = await fetch(`${BASE}?method=tag.getTopArtists&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_API_KEY}&format=json&limit=${limit}`);
+        const d = await r.json();
+        const artists = d.topartists?.artist || [];
+        return artists.map((a, index) => ({
+            name: a.name,
+            rank: index + 1,
+            total: artists.length
+        }));
+    } catch { return []; }
+}
 
     // ---- Utils ----
 
