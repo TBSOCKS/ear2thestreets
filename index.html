@@ -375,7 +375,6 @@
         .tag.tag-selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
         .tag.tag-disabled { opacity: 0.35; cursor: not-allowed; }
 
-        /* Popularity tiers */
         .tier-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -421,7 +420,6 @@
             font-style: italic;
         }
 
-        /* Results */
         .results-list {
             display: flex;
             flex-direction: column;
@@ -510,7 +508,6 @@
             font-size: 1.4rem;
         }
 
-        /* Tooltip */
         .result-tooltip {
             position: absolute;
             bottom: calc(100% + 8px);
@@ -604,7 +601,6 @@
         <div class="tagline">Artist discovery, powered by listener taste</div>
     </header>
 
-    <!-- Step 1 -->
     <div id="step1" class="step">
         <div class="label">How do you want to start?</div>
         <div class="mode-toggle">
@@ -612,7 +608,6 @@
             <button class="mode-btn" id="mode-lastfm" onclick="setMode('lastfm')">Import from Last.fm</button>
         </div>
 
-        <!-- Last.fm import -->
         <div id="lastfm-section" class="hidden">
             <div class="label">Your Last.fm username</div>
             <div class="lastfm-import">
@@ -635,7 +630,6 @@
             <div id="error-lastfm" class="error-msg hidden"></div>
         </div>
 
-        <!-- Manual input -->
         <div id="manual-section">
             <div class="label">Artists you love</div>
             <div class="artist-list" id="artist-list"></div>
@@ -646,7 +640,6 @@
         <button class="primary-btn" id="submit1-btn" onclick="submitArtists()">Build my taste profile →</button>
     </div>
 
-    <!-- Step 2 -->
     <div id="step2" class="step hidden">
         <div class="label">Refine by genre <span style="color:var(--border)">— pick up to 3</span></div>
         <div class="tag-grid" id="tag-grid"></div>
@@ -655,7 +648,7 @@
         <div class="tier-row">
             <button class="tier-btn" data-val="well-known" onclick="selectTier(this)">
                 <span class="tier-name">Well Known</span>
-                <span class="tier-desc">Top third by listeners</span>
+                <span class="tier-desc">Top third by rank</span>
             </button>
             <button class="tier-btn tier-selected" data-val="rising" onclick="selectTier(this)">
                 <span class="tier-name">Rising</span>
@@ -663,21 +656,19 @@
             </button>
             <button class="tier-btn" data-val="under-the-radar" onclick="selectTier(this)">
                 <span class="tier-name">Under the Radar</span>
-                <span class="tier-desc">Bottom third by listeners</span>
+                <span class="tier-desc">Bottom third by rank</span>
             </button>
         </div>
-        <div class="tier-hint" id="tier-hint">Tiers are calculated dynamically from the artists found for your taste profile.</div>
+        <div class="tier-hint">Tiers are calculated dynamically from the artists found for your taste profile.</div>
         <button class="primary-btn" id="submit2-btn" onclick="getRecommendations()">Find artists →</button>
     </div>
 
-    <!-- Loading -->
     <div id="loading" class="hidden">
         <div class="loading-state">
             <div class="loading-dots">Finding artists</div>
         </div>
     </div>
 
-    <!-- Results -->
     <div id="step3" class="step hidden">
         <div class="label">Recommended for you</div>
         <div class="results-list" id="results-list"></div>
@@ -687,12 +678,9 @@
 </div>
 
 <script>
-    // =============================================
-    // REPLACE THESE THREE VALUES WITH YOUR OWN KEYS
     const LASTFM_API_KEY = "86906346c104a44a2d72ba4825e184ad";
     const SPOTIFY_CLIENT_ID = "e8eddbda7ba947399fc60b109bf0a0f1";
     const SPOTIFY_CLIENT_SECRET = "65d45ec1f11e4d598c793e27032137f7";
-    // =============================================
 
     const BASE = "https://ws.audioscrobbler.com/2.0/";
 
@@ -704,9 +692,6 @@
     let debounceTimers = {};
     let rowCount = 0;
     let currentMode = "manual";
-    let allCandidates = []; // stores {name, listeners, tags} for all found artists
-
-    // ---- Mode toggle ----
 
     function setMode(mode) {
         currentMode = mode;
@@ -717,15 +702,11 @@
         hideError("error1");
     }
 
-    // ---- Period selection ----
-
     function selectPeriod(btn) {
         document.querySelectorAll(".period-btn").forEach(b => b.classList.remove("period-selected"));
         btn.classList.add("period-selected");
         selectedPeriod = btn.dataset.val;
     }
-
-    // ---- Last.fm import ----
 
     async function importFromLastfm() {
         const username = document.getElementById("lastfm-username").value.trim();
@@ -740,7 +721,6 @@
         try {
             const r = await fetch(`${BASE}?method=user.getTopArtists&user=${encodeURIComponent(username)}&api_key=${LASTFM_API_KEY}&format=json&limit=5&period=${selectedPeriod}`);
             const d = await r.json();
-
             if (d.error) {
                 showError("error-lastfm", "Couldn't find that username. Please check and try again.");
                 btn.disabled = false;
@@ -748,7 +728,6 @@
                 btn.textContent = "Import →";
                 return;
             }
-
             importedArtists = d.topartists.artist.map(a => a.name);
             renderImportedArtists();
         } catch {
@@ -780,8 +759,6 @@
             renderImportedArtists();
         }
     }
-
-    // ---- Artist rows ----
 
     function addRow() {
         if (rowCount >= 10) return;
@@ -858,8 +835,6 @@
         }, 180);
     }
 
-    // ---- Step 1 submit ----
-
     async function submitArtists() {
         if (currentMode === "lastfm") {
             if (importedArtists.length === 0) {
@@ -908,8 +883,6 @@
         document.getElementById("step2").classList.remove("hidden");
     }
 
-    // ---- Tags ----
-
     function toggleTag(el, tag) {
         if (el.classList.contains("tag-selected")) {
             el.classList.remove("tag-selected");
@@ -926,15 +899,11 @@
         });
     }
 
-    // ---- Tier ----
-
     function selectTier(btn) {
         document.querySelectorAll(".tier-btn").forEach(b => b.classList.remove("tier-selected"));
         btn.classList.add("tier-selected");
         selectedTier = btn.dataset.val;
     }
-
-    // ---- Recommendations ----
 
     async function getRecommendations() {
         const btn = document.getElementById("submit2-btn");
@@ -944,7 +913,6 @@
         document.getElementById("step2").classList.add("hidden");
         document.getElementById("loading").classList.remove("hidden");
 
-        // Get shared tags
         const tagCounter = {};
         for (const artist of selectedArtists) {
             const tags = await getTopTags(artist);
@@ -956,12 +924,11 @@
             sharedTags = Object.entries(tagCounter).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t]) => t);
         }
 
-        // Get all candidate artists with listener counts
-        const artistMap = {}; // name -> {count, listeners, matchedTags}
+        const artistMap = {};
         const seedLower = selectedArtists.map(a => a.toLowerCase());
 
         for (const tag of sharedTags) {
-            const artists = await getArtistsForTagWithListeners(tag);
+            const artists = await getArtistsForTagWithRank(tag);
             const total = artists.length;
             artists.forEach(({ name, rank }) => {
                 if (!seedLower.includes(name.toLowerCase())) {
@@ -972,7 +939,6 @@
                     if (!artistMap[name].matchedTags.includes(tag)) {
                         artistMap[name].matchedTags.push(tag);
                     }
-                    // Keep best (lowest) rank seen
                     if (rank < artistMap[name].rank) {
                         artistMap[name].rank = rank;
                         artistMap[name].total = total;
@@ -981,12 +947,10 @@
             });
         }
 
-        // Sort by count descending
         let candidates = Object.entries(artistMap)
             .sort((a, b) => b[1].count - a[1].count)
             .map(([name, data]) => ({ name, ...data }));
 
-        // Filter by tier using rank position
         candidates = candidates.filter(c => {
             const pct = c.rank / (c.total || 1000);
             if (selectedTier === "well-known") return pct <= 0.33;
@@ -995,7 +959,6 @@
             return true;
         });
 
-        // Filter by selected genre tags if any
         const filterTagsLower = selectedTags.map(t => t.toLowerCase());
         let filtered = [];
 
@@ -1005,7 +968,6 @@
                 const tags = await getTopTags(candidate.name);
                 const tagsLower = tags.map(t => t.toLowerCase());
                 if (!filterTagsLower.some(t => tagsLower.includes(t))) continue;
-                // update matchedTags with the actual fetched tags for tooltip
                 candidate.matchedTags = tags.filter(t =>
                     sharedTags.map(s => s.toLowerCase()).includes(t.toLowerCase())
                 );
@@ -1013,7 +975,6 @@
             filtered.push(candidate);
         }
 
-        // Get Spotify info
         const spotifyToken = await getSpotifyToken();
 
         document.getElementById("loading").classList.add("hidden");
@@ -1029,20 +990,15 @@
                 const finalUrl = artistUrl || `https://www.last.fm/music/${encodeURIComponent(candidate.name)}`;
                 const linkHint = artistUrl ? "Open in Spotify ↗" : "View on Last.fm ↗";
 
-                // Build tooltip reason
                 const tagList = candidate.matchedTags.slice(0, 3).join(", ");
-                const listenerStr = candidate.listeners > 0
-                    ? `${(candidate.listeners / 1000).toFixed(0)}k Last.fm listeners`
+                const rankStr = candidate.rank
+                    ? `Rank #${candidate.rank} of ${candidate.total} in this genre`
                     : "";
-                const listenerStr = candidate.rank
-    ? `Rank #${candidate.rank} of ${candidate.total} in this genre`
-    : "";
-
-const tooltipText = tagList
-    ? `Suggested because they share tags with your artists: ${tagList}${listenerStr ? ` · ${listenerStr}` : ""}`
-    : listenerStr
-        ? `Suggested based on your taste profile · ${listenerStr}`
-        : "Suggested based on your taste profile";
+                const tooltipText = tagList
+                    ? `Suggested because they share tags with your artists: ${tagList}${rankStr ? ` · ${rankStr}` : ""}`
+                    : rankStr
+                        ? `Suggested based on your taste profile · ${rankStr}`
+                        : "Suggested based on your taste profile";
 
                 const div = document.createElement("a");
                 div.className = "result-item";
@@ -1072,8 +1028,6 @@ const tooltipText = tagList
         btn.classList.remove("loading");
         btn.textContent = "Find artists →";
     }
-
-    // ---- Spotify ----
 
     async function getSpotifyToken() {
         try {
@@ -1106,8 +1060,6 @@ const tooltipText = tagList
         } catch { return { imageUrl: null, artistUrl: null }; }
     }
 
-    // ---- Last.fm helpers ----
-
     async function getTopTags(artist, limit = 5) {
         try {
             const r = await fetch(`${BASE}?method=artist.getTopTags&artist=${encodeURIComponent(artist)}&api_key=${LASTFM_API_KEY}&format=json&limit=${limit}`);
@@ -1116,20 +1068,18 @@ const tooltipText = tagList
         } catch { return []; }
     }
 
-    async function getArtistsForTagWithListeners(tag, limit = 1000) {
-    try {
-        const r = await fetch(`${BASE}?method=tag.getTopArtists&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_API_KEY}&format=json&limit=${limit}`);
-        const d = await r.json();
-        const artists = d.topartists?.artist || [];
-        return artists.map((a, index) => ({
-            name: a.name,
-            rank: index + 1,
-            total: artists.length
-        }));
-    } catch { return []; }
-}
-
-    // ---- Utils ----
+    async function getArtistsForTagWithRank(tag, limit = 1000) {
+        try {
+            const r = await fetch(`${BASE}?method=tag.getTopArtists&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_API_KEY}&format=json&limit=${limit}`);
+            const d = await r.json();
+            const artists = d.topartists?.artist || [];
+            return artists.map((a, index) => ({
+                name: a.name,
+                rank: index + 1,
+                total: artists.length
+            }));
+        } catch { return []; }
+    }
 
     function showError(id, msg) {
         const el = document.getElementById(id);
@@ -1147,7 +1097,6 @@ const tooltipText = tagList
         selectedTags = [];
         selectedTier = "rising";
         selectedPeriod = "overall";
-        allCandidates = [];
         rowCount = 0;
         currentMode = "manual";
         document.getElementById("artist-list").innerHTML = "";
