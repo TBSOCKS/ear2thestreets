@@ -1114,7 +1114,7 @@
         } catch { return []; }
     }
 
-    async function getArtistsForTagWithListeners(tag, limit = 150) {
+    async function getArtistsForTagWithListeners(tag, limit = 1000) {
         try {
             const r = await fetch(`${BASE}?method=tag.getTopArtists&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_API_KEY}&format=json&limit=${limit}`);
             const d = await r.json();
