@@ -57,10 +57,7 @@
             margin-bottom: 10px;
         }
 
-        .wordmark em {
-            font-style: italic;
-            color: var(--accent);
-        }
+        .wordmark em { font-style: italic; color: var(--accent); }
 
         .tagline {
             font-size: 0.72rem;
@@ -69,11 +66,7 @@
             text-transform: uppercase;
         }
 
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 32px 0;
-        }
+        .divider { height: 1px; background: var(--border); margin: 32px 0; }
 
         .label {
             font-size: 0.65rem;
@@ -83,7 +76,6 @@
             margin-bottom: 16px;
         }
 
-        /* Mode toggle */
         .mode-toggle {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -108,14 +100,12 @@
         .mode-btn:hover { border-color: var(--ink2); color: var(--ink); }
         .mode-btn.mode-selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
-        /* Last.fm import */
-        .lastfm-import {
-            margin-bottom: 24px;
-        }
+        .lastfm-import { margin-bottom: 16px; }
 
         .lastfm-row {
             display: flex;
             gap: 8px;
+            margin-bottom: 10px;
         }
 
         .lastfm-row input {
@@ -137,6 +127,29 @@
         }
 
         .lastfm-row input::placeholder { color: #bbb5aa; }
+
+        .period-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .period-btn {
+            padding: 5px 11px;
+            border: 1px solid var(--border);
+            background: var(--tag-bg);
+            color: var(--ink2);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.15s;
+            letter-spacing: 0.03em;
+        }
+
+        .period-btn:hover { border-color: var(--ink2); color: var(--ink); }
+        .period-btn.period-selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
         .import-btn {
             background: var(--ink);
@@ -171,14 +184,11 @@
         .import-hint {
             font-size: 0.65rem;
             color: var(--ink2);
-            margin-top: 8px;
+            margin-top: 4px;
             letter-spacing: 0.03em;
         }
 
-        /* Imported artists preview */
-        .imported-artists {
-            margin-bottom: 20px;
-        }
+        .imported-artists { margin-bottom: 20px; }
 
         .imported-tag {
             display: inline-flex;
@@ -206,7 +216,6 @@
 
         .imported-tag-remove:hover { color: var(--accent); }
 
-        /* Artist inputs */
         .artist-list {
             display: flex;
             flex-direction: column;
@@ -231,13 +240,9 @@
             color: var(--ink2);
             width: 16px;
             flex-shrink: 0;
-            letter-spacing: 0.05em;
         }
 
-        .input-wrap {
-            position: relative;
-            flex: 1;
-        }
+        .input-wrap { position: relative; flex: 1; }
 
         .input-wrap input {
             width: 100%;
@@ -262,8 +267,7 @@
         .dropdown {
             position: absolute;
             top: calc(100% + 4px);
-            left: 0;
-            right: 0;
+            left: 0; right: 0;
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -292,7 +296,6 @@
             color: var(--border);
             cursor: pointer;
             font-size: 1rem;
-            line-height: 1;
             padding: 4px;
             transition: color 0.15s;
             flex-shrink: 0;
@@ -340,10 +343,8 @@
         .primary-btn.loading::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: -100%;
-            height: 2px;
-            width: 100%;
+            bottom: 0; left: -100%;
+            height: 2px; width: 100%;
             background: var(--accent2);
             animation: loadBar 1.5s infinite;
         }
@@ -374,30 +375,53 @@
         .tag.tag-selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
         .tag.tag-disabled { opacity: 0.35; cursor: not-allowed; }
 
-        .pop-row {
+        /* Popularity tiers */
+        .tier-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            margin-bottom: 28px;
+            margin-bottom: 8px;
         }
 
-        .pop-btn {
-            padding: 10px;
+        .tier-btn {
+            padding: 12px 8px;
             border: 1px solid var(--border);
             background: var(--tag-bg);
             color: var(--ink2);
             font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.15s;
-            letter-spacing: 0.04em;
             text-align: center;
+            line-height: 1.5;
         }
 
-        .pop-btn:hover { border-color: var(--ink2); color: var(--ink); }
-        .pop-btn.pop-selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+        .tier-btn:hover { border-color: var(--ink2); color: var(--ink); }
+        .tier-btn.tier-selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
+        .tier-btn .tier-name {
+            display: block;
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            margin-bottom: 2px;
+        }
+
+        .tier-btn .tier-desc {
+            display: block;
+            font-size: 0.6rem;
+            opacity: 0.6;
+        }
+
+        .tier-hint {
+            font-size: 0.62rem;
+            color: var(--ink2);
+            letter-spacing: 0.03em;
+            margin-bottom: 28px;
+            font-style: italic;
+        }
+
+        /* Results */
         .results-list {
             display: flex;
             flex-direction: column;
@@ -416,6 +440,7 @@
             text-decoration: none;
             color: inherit;
             transition: border-color 0.15s, box-shadow 0.15s;
+            position: relative;
         }
 
         .result-item:hover {
@@ -444,7 +469,7 @@
             line-height: 1;
         }
 
-        .result-info { flex: 1; }
+        .result-info { flex: 1; min-width: 0; }
 
         .result-name {
             font-family: 'Instrument Serif', serif;
@@ -483,6 +508,38 @@
             align-items: center;
             justify-content: center;
             font-size: 1.4rem;
+        }
+
+        /* Tooltip */
+        .result-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 0; right: 0;
+            background: var(--ink);
+            color: var(--bg);
+            font-size: 0.68rem;
+            padding: 10px 14px;
+            border-radius: 6px;
+            letter-spacing: 0.03em;
+            line-height: 1.5;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.15s, transform 0.15s;
+            z-index: 10;
+        }
+
+        .result-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%; left: 20px;
+            border: 5px solid transparent;
+            border-top-color: var(--ink);
+        }
+
+        .result-item:hover .result-tooltip {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .ghost-btn {
@@ -547,6 +604,7 @@
         <div class="tagline">Artist discovery, powered by listener taste</div>
     </header>
 
+    <!-- Step 1 -->
     <div id="step1" class="step">
         <div class="label">How do you want to start?</div>
         <div class="mode-toggle">
@@ -560,9 +618,18 @@
             <div class="lastfm-import">
                 <div class="lastfm-row">
                     <input type="text" id="lastfm-username" placeholder="e.g. rj" autocomplete="off" />
-                    <button class="import-btn" id="import-btn" onclick="importFromLastfm()">Import top 5 →</button>
+                    <button class="import-btn" id="import-btn" onclick="importFromLastfm()">Import →</button>
                 </div>
-                <div class="import-hint">We'll pull your 5 most scrobbled artists of all time.</div>
+                <div class="label" style="margin-bottom:8px">Time period</div>
+                <div class="period-row">
+                    <button class="period-btn" data-val="7day" onclick="selectPeriod(this)">7 days</button>
+                    <button class="period-btn" data-val="1month" onclick="selectPeriod(this)">1 month</button>
+                    <button class="period-btn" data-val="3month" onclick="selectPeriod(this)">3 months</button>
+                    <button class="period-btn" data-val="6month" onclick="selectPeriod(this)">6 months</button>
+                    <button class="period-btn" data-val="12month" onclick="selectPeriod(this)">12 months</button>
+                    <button class="period-btn period-selected" data-val="overall" onclick="selectPeriod(this)">All time</button>
+                </div>
+                <div class="import-hint">We'll pull your top 5 most scrobbled artists for the selected period.</div>
             </div>
             <div id="imported-artists" class="imported-artists hidden"></div>
             <div id="error-lastfm" class="error-msg hidden"></div>
@@ -579,25 +646,38 @@
         <button class="primary-btn" id="submit1-btn" onclick="submitArtists()">Build my taste profile →</button>
     </div>
 
+    <!-- Step 2 -->
     <div id="step2" class="step hidden">
         <div class="label">Refine by genre <span style="color:var(--border)">— pick up to 3</span></div>
         <div class="tag-grid" id="tag-grid"></div>
         <div class="divider"></div>
-        <div class="label">Popularity</div>
-        <div class="pop-row">
-            <button class="pop-btn" data-val="mainstream" onclick="selectPop(this)">Mainstream</button>
-            <button class="pop-btn pop-selected" data-val="mid" onclick="selectPop(this)">Mid</button>
-            <button class="pop-btn" data-val="underground" onclick="selectPop(this)">Underground</button>
+        <div class="label">Popularity tier</div>
+        <div class="tier-row">
+            <button class="tier-btn" data-val="well-known" onclick="selectTier(this)">
+                <span class="tier-name">Well Known</span>
+                <span class="tier-desc">Top third by listeners</span>
+            </button>
+            <button class="tier-btn tier-selected" data-val="rising" onclick="selectTier(this)">
+                <span class="tier-name">Rising</span>
+                <span class="tier-desc">Middle third</span>
+            </button>
+            <button class="tier-btn" data-val="under-the-radar" onclick="selectTier(this)">
+                <span class="tier-name">Under the Radar</span>
+                <span class="tier-desc">Bottom third by listeners</span>
+            </button>
         </div>
+        <div class="tier-hint" id="tier-hint">Tiers are calculated dynamically from the artists found for your taste profile.</div>
         <button class="primary-btn" id="submit2-btn" onclick="getRecommendations()">Find artists →</button>
     </div>
 
+    <!-- Loading -->
     <div id="loading" class="hidden">
         <div class="loading-state">
             <div class="loading-dots">Finding artists</div>
         </div>
     </div>
 
+    <!-- Results -->
     <div id="step3" class="step hidden">
         <div class="label">Recommended for you</div>
         <div class="results-list" id="results-list"></div>
@@ -619,10 +699,12 @@
     let selectedArtists = [];
     let importedArtists = [];
     let selectedTags = [];
-    let selectedPop = "mid";
+    let selectedTier = "rising";
+    let selectedPeriod = "overall";
     let debounceTimers = {};
     let rowCount = 0;
     let currentMode = "manual";
+    let allCandidates = []; // stores {name, listeners, tags} for all found artists
 
     // ---- Mode toggle ----
 
@@ -635,14 +717,19 @@
         hideError("error1");
     }
 
+    // ---- Period selection ----
+
+    function selectPeriod(btn) {
+        document.querySelectorAll(".period-btn").forEach(b => b.classList.remove("period-selected"));
+        btn.classList.add("period-selected");
+        selectedPeriod = btn.dataset.val;
+    }
+
     // ---- Last.fm import ----
 
     async function importFromLastfm() {
         const username = document.getElementById("lastfm-username").value.trim();
-        if (!username) {
-            showError("error-lastfm", "Please enter a Last.fm username.");
-            return;
-        }
+        if (!username) { showError("error-lastfm", "Please enter a Last.fm username."); return; }
         hideError("error-lastfm");
 
         const btn = document.getElementById("import-btn");
@@ -651,33 +738,32 @@
         btn.textContent = "Importing...";
 
         try {
-            const r = await fetch(`${BASE}?method=user.getTopArtists&user=${encodeURIComponent(username)}&api_key=${LASTFM_API_KEY}&format=json&limit=5&period=overall`);
+            const r = await fetch(`${BASE}?method=user.getTopArtists&user=${encodeURIComponent(username)}&api_key=${LASTFM_API_KEY}&format=json&limit=5&period=${selectedPeriod}`);
             const d = await r.json();
 
             if (d.error) {
                 showError("error-lastfm", "Couldn't find that username. Please check and try again.");
                 btn.disabled = false;
                 btn.classList.remove("loading");
-                btn.textContent = "Import top 5 →";
+                btn.textContent = "Import →";
                 return;
             }
 
             importedArtists = d.topartists.artist.map(a => a.name);
             renderImportedArtists();
-
         } catch {
             showError("error-lastfm", "Something went wrong. Please try again.");
         }
 
         btn.disabled = false;
         btn.classList.remove("loading");
-        btn.textContent = "Import top 5 →";
+        btn.textContent = "Import →";
     }
 
     function renderImportedArtists() {
         const container = document.getElementById("imported-artists");
         container.classList.remove("hidden");
-        container.innerHTML = `<div class="label" style="margin-bottom:10px">Imported artists <span style="color:var(--border)">— click to remove</span></div>`;
+        container.innerHTML = `<div class="label" style="margin-bottom:10px">Imported artists <span style="color:var(--border)">— click × to remove</span></div>`;
         importedArtists.forEach((name, i) => {
             const tag = document.createElement("span");
             tag.className = "imported-tag";
@@ -695,7 +781,7 @@
         }
     }
 
-    // ---- Artist rows (manual mode) ----
+    // ---- Artist rows ----
 
     function addRow() {
         if (rowCount >= 10) return;
@@ -840,12 +926,12 @@
         });
     }
 
-    // ---- Popularity ----
+    // ---- Tier ----
 
-    function selectPop(btn) {
-        document.querySelectorAll(".pop-btn").forEach(b => b.classList.remove("pop-selected"));
-        btn.classList.add("pop-selected");
-        selectedPop = btn.dataset.val;
+    function selectTier(btn) {
+        document.querySelectorAll(".tier-btn").forEach(b => b.classList.remove("tier-selected"));
+        btn.classList.add("tier-selected");
+        selectedTier = btn.dataset.val;
     }
 
     // ---- Recommendations ----
@@ -858,9 +944,7 @@
         document.getElementById("step2").classList.add("hidden");
         document.getElementById("loading").classList.remove("hidden");
 
-        const skipMap = { mainstream: 0, mid: 50, underground: 100 };
-        const skip = skipMap[selectedPop] || 50;
-
+        // Get shared tags
         const tagCounter = {};
         for (const artist of selectedArtists) {
             const tags = await getTopTags(artist);
@@ -872,31 +956,66 @@
             sharedTags = Object.entries(tagCounter).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t]) => t);
         }
 
-        const artistCounter = {};
+        // Get all candidate artists with listener counts
+        const artistMap = {}; // name -> {count, listeners, matchedTags}
         const seedLower = selectedArtists.map(a => a.toLowerCase());
+
         for (const tag of sharedTags) {
-            const artists = await getArtistsForTag(tag, skip);
-            artists.forEach(name => {
+            const artists = await getArtistsForTagWithListeners(tag);
+            artists.forEach(({ name, listeners }) => {
                 if (!seedLower.includes(name.toLowerCase())) {
-                    artistCounter[name] = (artistCounter[name] || 0) + 1;
+                    if (!artistMap[name]) {
+                        artistMap[name] = { count: 0, listeners, matchedTags: [] };
+                    }
+                    artistMap[name].count++;
+                    if (!artistMap[name].matchedTags.includes(tag)) {
+                        artistMap[name].matchedTags.push(tag);
+                    }
+                    // Keep highest listener count seen
+                    if (listeners > artistMap[name].listeners) {
+                        artistMap[name].listeners = listeners;
+                    }
                 }
             });
         }
 
-        let candidates = Object.entries(artistCounter).sort((a, b) => b[1] - a[1]).map(([name]) => name);
+        // Sort by count descending
+        let candidates = Object.entries(artistMap)
+            .sort((a, b) => b[1].count - a[1].count)
+            .map(([name, data]) => ({ name, ...data }));
+
+        // Calculate percentile thresholds from this pool
+        const listenerCounts = candidates.map(c => c.listeners).sort((a, b) => a - b);
+        const p33 = listenerCounts[Math.floor(listenerCounts.length * 0.33)] || 0;
+        const p66 = listenerCounts[Math.floor(listenerCounts.length * 0.66)] || 0;
+
+        // Filter by selected tier
+        candidates = candidates.filter(c => {
+            if (selectedTier === "well-known") return c.listeners >= p66;
+            if (selectedTier === "rising") return c.listeners >= p33 && c.listeners < p66;
+            if (selectedTier === "under-the-radar") return c.listeners < p33;
+            return true;
+        });
+
+        // Filter by selected genre tags if any
         const filterTagsLower = selectedTags.map(t => t.toLowerCase());
         let filtered = [];
 
-        for (const name of candidates) {
+        for (const candidate of candidates) {
             if (filtered.length >= 5) break;
             if (filterTagsLower.length > 0) {
-                const tags = await getTopTags(name);
+                const tags = await getTopTags(candidate.name);
                 const tagsLower = tags.map(t => t.toLowerCase());
                 if (!filterTagsLower.some(t => tagsLower.includes(t))) continue;
+                // update matchedTags with the actual fetched tags for tooltip
+                candidate.matchedTags = tags.filter(t =>
+                    sharedTags.map(s => s.toLowerCase()).includes(t.toLowerCase())
+                );
             }
-            filtered.push(name);
+            filtered.push(candidate);
         }
 
+        // Get Spotify info
         const spotifyToken = await getSpotifyToken();
 
         document.getElementById("loading").classList.add("hidden");
@@ -904,13 +1023,24 @@
         list.innerHTML = "";
 
         if (filtered.length === 0) {
-            list.innerHTML = `<p style="color:var(--ink2); font-size:0.8rem">No results found. Try adjusting your filters or popularity setting.</p>`;
+            list.innerHTML = `<p style="color:var(--ink2); font-size:0.8rem">No results found. Try adjusting your filters or tier.</p>`;
         } else {
             for (let i = 0; i < filtered.length; i++) {
-                const name = filtered[i];
-                const { imageUrl, artistUrl } = await getSpotifyArtistInfo(name, spotifyToken);
-                const finalUrl = artistUrl || `https://www.last.fm/music/${encodeURIComponent(name)}`;
+                const candidate = filtered[i];
+                const { imageUrl, artistUrl } = await getSpotifyArtistInfo(candidate.name, spotifyToken);
+                const finalUrl = artistUrl || `https://www.last.fm/music/${encodeURIComponent(candidate.name)}`;
                 const linkHint = artistUrl ? "Open in Spotify ↗" : "View on Last.fm ↗";
+
+                // Build tooltip reason
+                const tagList = candidate.matchedTags.slice(0, 3).join(", ");
+                const listenerStr = candidate.listeners > 0
+                    ? `${(candidate.listeners / 1000).toFixed(0)}k Last.fm listeners`
+                    : "";
+                const tooltipText = tagList
+                    ? `Suggested because they share tags with your artists: ${tagList}${listenerStr ? ` · ${listenerStr}` : ""}`
+                    : listenerStr
+                        ? `Suggested based on your taste profile · ${listenerStr}`
+                        : "Suggested based on your taste profile";
 
                 const div = document.createElement("a");
                 div.className = "result-item";
@@ -919,13 +1049,14 @@
                 div.rel = "noopener noreferrer";
 
                 const imgHtml = imageUrl
-                    ? `<img class="result-img" src="${imageUrl}" alt="${name}" onerror="this.outerHTML='<div class=\\'result-img-placeholder\\'>🎵</div>'">`
+                    ? `<img class="result-img" src="${imageUrl}" alt="${candidate.name}" onerror="this.outerHTML='<div class=\\'result-img-placeholder\\'>🎵</div>'">`
                     : `<div class="result-img-placeholder">🎵</div>`;
 
                 div.innerHTML = `
+                    <div class="result-tooltip">${tooltipText}</div>
                     <span class="result-num">${i + 1}</span>
                     <div class="result-info">
-                        <span class="result-name">${name}</span>
+                        <span class="result-name">${candidate.name}</span>
                         <div class="result-link-hint">${linkHint}</div>
                     </div>
                     ${imgHtml}
@@ -983,12 +1114,14 @@
         } catch { return []; }
     }
 
-    async function getArtistsForTag(tag, skip = 0, limit = 50) {
+    async function getArtistsForTagWithListeners(tag, limit = 150) {
         try {
-            const r = await fetch(`${BASE}?method=tag.getTopArtists&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_API_KEY}&format=json&limit=${limit + skip}`);
+            const r = await fetch(`${BASE}?method=tag.getTopArtists&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_API_KEY}&format=json&limit=${limit}`);
             const d = await r.json();
-            const all = d.topartists?.artist?.map(a => a.name) || [];
-            return all.slice(skip);
+            return (d.topartists?.artist || []).map(a => ({
+                name: a.name,
+                listeners: parseInt(a.listeners || "0", 10)
+            }));
         } catch { return []; }
     }
 
@@ -1008,7 +1141,9 @@
         selectedArtists = [];
         importedArtists = [];
         selectedTags = [];
-        selectedPop = "mid";
+        selectedTier = "rising";
+        selectedPeriod = "overall";
+        allCandidates = [];
         rowCount = 0;
         currentMode = "manual";
         document.getElementById("artist-list").innerHTML = "";
